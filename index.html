@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Mini Ecommerce</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" 
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script defer src="https://use.fontawesome.com/releases/v5.8.1/js/all.js" 
+    integrity="sha384-g5uSoOSBd7KkhAMlnQILrecXvzst9TdC09/VM+pjDTCM+1il8RHz5fKANTFFb+gQ" crossorigin="anonymous"></script>
+    <style>
+        /* Warna tema */
+        :root {
+            --primary-color: #5e60ce;
+            --secondary-color: #48bfe3;
+            --text-color: #023047;
+            --background-color: #f0f7ff;
+        }
+
+        body {
+            background-color: var(--background-color);
+            font-family: 'Arial', sans-serif;
+        }
+
+        .navbar {
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+
+        .navbar .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+            color: #fff;
+        }
+
+        .navbar .form-control {
+            border-radius: 20px;
+        }
+
+        .navbar .btn-outline-success {
+            border-color: var(--secondary-color);
+            color: var(--secondary-color);
+        }
+
+        .navbar .btn-outline-success:hover {
+            background-color: var(--secondary-color);
+            color: #fff;
+        }
+
+        .card {
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .card img {
+            border-bottom: 2px solid var(--primary-color);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .card img:hover {
+            transform: scale(1.1);
+        }
+
+        .card-title {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background-color: var(--secondary-color);
+            border: none;
+            border-radius: 20px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-color);
+            transform: scale(1.1);
+        }
+
+        #cart {
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            background-color: var(--primary-color);
+            border: none;
+            border-radius: 20px;
+            padding: 10px 20px;
+        }
+
+        #cart:hover {
+            background-color: var(--secondary-color);
+            color: #fff;
+        }
+
+        #listBarang {
+            justify-content: space-around;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-dark py-3 mb-4">
+            <a class="navbar-brand">Mini Ecommerce</a>
+            <form class="form-inline ml-auto" id="formItem">
+                <input class="form-control mr-2" type="search" placeholder="Cari produk..." id="keyword" aria-label="Search">
+                <button class="btn btn-outline-success" type="submit" id="searchItem">Cari</button>
+            </form>
+            <button class="btn text-light ml-3" id="cart">
+                <i class="fas fa-shopping-cart"></i> <span id="cartCount">0</span>
+            </button>
+        </nav>
+
+        <!-- List Barang -->
+        <div class="row" id="listBarang">
+            <!-- Produk akan dirender di sini -->
+        </div>
+    </div>
+
+    <script>
+        // Data barang
+        const items = [
+            ['001', 'Keyboard Logitek', 90000, 'Keyboard yang mantap untuk kantoran', 'logitek.jpeg'], 
+            ['002', 'Keyboard MSI', 400000, 'Keyboard gaming MSI mekanik', 'MSi.jpeg'],
+            ['003', 'Mouse Genius', 34000, 'Mouse Genius biar lebih pinter', 'genius.jpeg'],
+            ['004', 'Mouse Jerry', 20000, 'Mouse yang disukai kucing', 'jerry.jpeg']
+        ];
+
+        // Keranjang belanja
+        let cart = [];
+
+        // Render barang
+        const renderItems = (itemsToRender) => {
+            const listBarang = document.getElementById("listBarang");
+            listBarang.innerHTML = ""; // Bersihkan kontainer
+
+            itemsToRender.forEach(item => {
+                const card = document.createElement("div");
+                card.classList.add("col-md-4", "mb-4", "d-flex", "justify-content-center");
+                card.innerHTML = `
+                    <div class="card" style="width: 18rem;">
+                        <img src="${item[4]}" class="card-img-top" height="200px" alt="${item[1]}">
+                        <div class="card-body">
+                            <h5 class="card-title">${item[1]}</h5>
+                            <p class="card-text">${item[3]}</p>
+                            <p class="card-text font-weight-bold">Rp ${item[2].toLocaleString()}</p>
+                            <button class="btn btn-primary btn-block" onclick="addToCart('${item[0]}')">Tambahkan ke keranjang</button>
+                        </div>
+                    </div>
+                `;
+                listBarang.appendChild(card);
+            });
+        };
+
+        // Tambahkan barang ke keranjang
+        const addToCart = (id) => {
+            const item = items.find(item => item[0] === id);
+            if (item) {
+                cart.push(item); // Tambahkan item ke keranjang
+                updateCartCount(); // Perbarui jumlah di keranjang
+            }
+        };
+
+        // Perbarui jumlah barang di keranjang
+        const updateCartCount = () => {
+            const cartCount = document.getElementById("cartCount");
+            cartCount.textContent = cart.length;
+        };
+
+        // Fitur pencarian
+        const searchItems = (keyword) => {
+            return items.filter(item => item[1].toLowerCase().includes(keyword.toLowerCase()));
+        };
+
+        // Tangani form pencarian
+        document.getElementById("formItem").addEventListener("submit", (e) => {
+            e.preventDefault(); // Hentikan refresh halaman
+            const keyword = document.getElementById("keyword").value;
+            const filteredItems = searchItems(keyword); // Filter barang
+            renderItems(filteredItems); // Render hasil pencarian
+        });
+
+        // Render barang saat halaman pertama kali dimuat
+        renderItems(items);
+    </script>
+</body>
+</html>
